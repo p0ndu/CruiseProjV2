@@ -48,6 +48,7 @@ public class Excursion {
                 added = true;
                 i = passengers.length;
                 currentPassengers += 1;
+                sortPassengers();
             }
         }
 
@@ -56,24 +57,24 @@ public class Excursion {
         }
     }
 
-    // fix things requiring passenger util
-    // -- misc -- 
-    // public void addPassenger(Passenger passenger) { // adds passenger onto the first null space found
-    //     if (currentPassengers < maxPassengers) {
-    //         this.passengers = PassengerUtil.addPassenger(passengers, passenger);
-    //         currentPassengers += 1;
-    //     } else {
-    //         System.out.println("Excursion is full");
-    //     }
-    // }
-
-    // public void removePassenger(Passenger pass) { // searches for an removes passed passenger
-    //     this.passengers = PassengerUtil.removePassenger(passengers, pass);
-    //     currentPassengers = - 1;
-    // }
+   // misc
 
     public boolean hasSpace() {
         return currentPassengers < maxPassengers; // returns if currentPassengers is smaller than maxPassengers, i.e. if it has space to add another
+    }
+
+    private void sortPassengers(){ // sorts passengers alphabetically with a bubble sort, not efficient at all but rn i dont really care
+        for (int i = 0; i < passengers.length; i++) {
+            for (int j = i + 1; j < passengers.length; j++) {
+                if (passengers[i] != null && passengers[j] != null) {
+                    if (passengers[i].getName().compareTo(passengers[j].getName()) > 0) {
+                        Passenger temp = passengers[i];
+                        passengers[i] = passengers[j];
+                        passengers[j] = temp;
+                    }
+                }
+            }
+        }
     }
 
 }

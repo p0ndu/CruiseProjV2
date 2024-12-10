@@ -1,5 +1,6 @@
 package CruiseProj.Presentation;
 
+import java.lang.classfile.instruction.ThrowInstruction;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -77,6 +78,22 @@ public class OutputUtil {
         System.out.println(sb.toString());
     }
 
+    public static void displayShipInfo(StringBuilder sb, Ship ship) { // prints the ship info
+        clearTerminal(); // clearing stringBuilder and terminal
+        sb.setLength(0);
+
+        printHeader(sb, " == Ship Details == " );
+        appendKeyValue(sb, "Name", ship.getName());
+        appendKeyValue(sb, "Passengers on board", String.valueOf(ship.getNumPassengers()));
+
+        sb.append(LINE_SEPARATOR).append("\n");
+
+        printHeader(sb, " == Excursions Scheduled == ");
+        printExcursionsHelper(sb, ship.getExcursions());
+
+        System.out.println(sb.toString());
+    }
+
     //  -- excursion output functions -- //
     public static void printExcursions(StringBuilder sb, Excursion[] excursions) { // called by displayCruiseInfo
         clearTerminal(); // clearing stringBuilder and terminal
@@ -105,16 +122,36 @@ public class OutputUtil {
 
     public static void printExcursionDetailed(StringBuilder sb, Excursion excursion) { //internal func that prints the more detailed excursion information
         sb.setLength(0); // reset stringbuilder
-
-        printHeader(sb, "Excursion Details - " + excursion.getDestination().getName()); // prints the header then appends all info
+        printHeader(sb, " == Excursion Details ==");
         appendKeyValue(sb, "Destination", excursion.getDestination().getName());
         appendKeyValue(sb, "Day", excursion.getDay().toString());
         appendKeyValue(sb, "Passengers", String.valueOf(excursion.getCurrentPassengers()));
-        for (int i = 0; i < excursion.getCurrentPassengers(); i++) {
-            appendKeyValue(sb, " " + i, excursion.getPassengers()[i].getName()); // prints all passengers attatched to their excursion
+        if (excursion.getCurrentPassengers() > 0) {
+            for (int i = 0; i < excursion.getCurrentPassengers(); i++) {
+                appendKeyValue(sb, " " + i, excursion.getPassengers()[i].getName()); // prints all passengers attatched to their excursion
+            }
+        }
+        else{
+            sb.append("| ###### No passengers on this excursion ###### ");
+            addPadding(sb, LINE_WIDTH - 43);
         }
         sb.append(LINE_SEPARATOR).append("\n");
         System.out.println(sb.toString());
+    }
+
+    public static void printExcursionsHelper(StringBuilder sb, Excursion[] excursions){
+        for (int i = 0; i < excursions.length; i++) {
+            Excursion excursion = excursions[i];
+
+            appendKeyValue(sb, excursion.getDestination().getName(), "");
+            appendKeyValue(sb, "Day", excursion.getDay().toString());
+            appendKeyValue(sb, "Available spaces", String.valueOf(excursion.getMaxPassengers() - excursion.getCurrentPassengers()));
+            if (i != excursions.length - 1) {
+                sb.append("|" + " ".repeat(LINE_WIDTH - 1) + "|\n");
+            }
+        }
+
+        sb.append(LINE_SEPARATOR).append("\n");
     }
 
     public static int listPassengers(StringBuilder sb, Ship ship) { // prints the passengers on a cruise
@@ -165,9 +202,16 @@ public class OutputUtil {
         sb.setLength(0);
 
         printHeader(sb, " == Available Excursions ==");
-        for (int i = 0; i < excursions.size(); i++) {
-            Excursion excursion = excursions.get(i);
-            appendKeyValue(sb, String.valueOf(i), excursion.getDestination().getName());
+
+        if (excursions.size() == 0) {
+            sb.append("| ###### No excursions available ######");
+            addPadding(sb, LINE_WIDTH - 33);
+        }
+        else{   
+            for (int i = 0; i < excursions.size(); i++) {
+                Excursion excursion = excursions.get(i);
+                appendKeyValue(sb, String.valueOf(i), excursion.getDestination().getName());
+            }
         }
 
         sb.append(LINE_SEPARATOR).append("\n");

@@ -95,6 +95,7 @@ public class Ship {
                 passengers[i] = passIn;
                 i = passengers.length;
                 added = true;
+                sortPassengers();
             }
         }
 
@@ -131,6 +132,21 @@ public class Ship {
         else{
             System.out.println("error: excursion already added to ship");
         }
+    }
+
+    private void sortPassengers(){ // sorts passengers alphabetically using a bubble sort, dont care about efficiency rn
+        for (int i = 0; i < passengers.length; i++) {
+            for (int j = i + 1; j < passengers.length; j++) {
+                if (passengers[i] != null && passengers[j] != null) {
+                    if (passengers[i].getName().compareTo(passengers[j].getName()) > 0) {
+                        Passenger temp = passengers[i];
+                        passengers[i] = passengers[j];
+                        passengers[j] = temp;
+                    }
+                }
+            }
+        }
+        
     }
 
 }

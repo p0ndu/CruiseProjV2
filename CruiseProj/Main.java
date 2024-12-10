@@ -9,8 +9,6 @@ public class Main {
         Cruise[] cruises = TestData.buildTestData(); // builds test data
         System.out.println("Test data built successfully!");
 
-
-        
         ControlFlow.menu(cruises); // starts the program
     }
 }

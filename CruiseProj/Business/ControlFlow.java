@@ -2,6 +2,7 @@ package CruiseProj.Business;
 
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import CruiseProj.Data.*;
 import CruiseProj.Presentation.OutputUtil;
@@ -13,7 +14,7 @@ public class ControlFlow {
         StringBuilder sb = new StringBuilder();
         boolean loop = true;
         int userIn;
-        
+
         OutputUtil.clearTerminal();
 
         do {
@@ -53,15 +54,23 @@ public class ControlFlow {
     private static void displayCruiseInfo(StringBuilder sb, Scanner scn, Cruise[] cruises) { // requirement 1 - prints cruise info
         sb.setLength(0);
 
-        try {
+        boolean loop = true;
+        do {
+            OutputUtil.clearTerminal();
             Ship selectedShip = selectShip(sb, scn, cruises);
-            OutputUtil.printExcursions(sb, selectedShip.getExcursions()); // displays the selected ship's information
-            System.out.println("Press enter to return to the menu");
-            scn.nextLine();
 
-        } catch (Exception e) {
-            System.out.println("error in displayCruiseInfo");
-        }
+            try {
+                OutputUtil.displayShipInfo(sb, selectedShip);
+                loop = false;
+
+                System.out.println("Press enter to return to the menu");
+                scn.nextLine();
+                sb.setLength(0);
+
+            } catch (Exception e) {
+                System.out.println("error in displayCruiseInfo");
+            }
+        } while (loop);
     }
 
     private static void displayExcursionInfo(StringBuilder sb, Scanner scn, Cruise[] cruises) { // requirement 2 - prints excursion info with more detail
@@ -115,13 +124,39 @@ public class ControlFlow {
 
             ArrayList<Excursion> availableExcursions = getAvailableExcursions(SelectedShip); // gets the available excursions
 
-            OutputUtil.printAvailableExcursions(sb, availableExcursions); // gets user input for excursion
-            System.out.println("Select an excursion to book: ");
-            Excursion chosenExcursion = availableExcursions.get(InputUtil.getValidInput(scn, 0, availableExcursions.size() - 1)); // user selects an excursion
-            OutputUtil.clearTerminal();
+            Iterator<Excursion> iterator = availableExcursions.iterator(); // using an iterator to change the arrayList while iterating over it
+            while (iterator.hasNext()) {
+                Excursion excursion = iterator.next();
+                for (Excursion excursion2 : chosenPassenger.getExcursions()) {
+                    if (excursion.equals(excursion2)) {
+                        iterator.remove(); // Safely remove the element during iteration
+                        break; // Exit the inner loop as we already found a match
+                    }
+                }
+            }
 
-            PassengerUtil.addPassenger(chosenPassenger, chosenExcursion);
-            System.out.println("Excursion booked successfully");
+            if (availableExcursions.size() != 0) {
+
+                OutputUtil.printAvailableExcursions(sb, availableExcursions); // gets user input for excursion
+                System.out.println("Select an excursion to book or c to cancel: ");
+                String userInput = scn.nextLine();
+
+                if (userInput.toLowerCase().equals("c")) {
+                    return;
+                }
+                else{
+                    Excursion chosenExcursion = availableExcursions.get(InputUtil.getValidInput(scn, 0, availableExcursions.size() - 1, userInput)); // user selects an excursion                
+    
+                    OutputUtil.clearTerminal();
+    
+                    PassengerUtil.addPassenger(chosenPassenger, chosenExcursion);
+                    System.out.println("Excursion booked successfully");
+                }
+            }
+
+            else{
+                System.out.println("No excursions available");
+            }
 
             System.out.println("Press enter to return to the menu");
             scn.nextLine();
@@ -146,15 +181,15 @@ public class ControlFlow {
                 if (scn.nextLine().toLowerCase().equals("y")) {
                     try {
                         OutputUtil.clearTerminal();
-    
+
                         Passenger selectedPassenger = selectPassenger(sb, scn, selectedShip); // gets the selected passenger
                         OutputUtil.clearTerminal();
-    
+
                         OutputUtil.printAvailableCabins(sb, availableCabins);
                         System.out.println("Select a cabin to book: ");
                         Cabin selectedCabin = availableCabins.get(InputUtil.getValidInput(scn, 0, availableCabins.size() - 1)); // user selects a cabin
                         OutputUtil.clearTerminal();
-    
+
                         PassengerUtil.switchCabins(selectedPassenger, selectedPassenger.getCabin(), selectedCabin); // switches the cabins
 
                     } catch (Exception e) {
@@ -176,17 +211,23 @@ public class ControlFlow {
     // -- helper functions -- //
     private static Ship selectShip(StringBuilder sb, Scanner scn, Cruise[] cruises) {
         OutputUtil.displayCruiseInfo(sb, scn, cruises);
-        return cruises[InputUtil.getValidInput(scn, 0, cruises.length)].getShip();
+        System.out.println("Select a ship: ");
+
+        return cruises[InputUtil.getValidInput(scn, 0, cruises.length - 1)].getShip();
     }
 
     private static Excursion selectExcursion(StringBuilder sb, Scanner scn, Ship ship) {
         OutputUtil.printExcursions(sb, ship.getExcursions());
-        return ship.getExcursions()[InputUtil.getValidInput(scn, 0, ship.getExcursions().length)];
+        System.out.println("Select an excursion: ");
+
+        return ship.getExcursions()[InputUtil.getValidInput(scn, 0, ship.getExcursions().length - 1)];
     }
 
     private static Passenger selectPassenger(StringBuilder sb, Scanner scn, Ship ship) {
         OutputUtil.listPassengers(sb, ship);
-        return ship.getPassengers()[InputUtil.getValidInput(scn, 0, ship.getNumPassengers())];
+        System.out.println("Select a passenger: ");
+
+        return ship.getPassengers()[InputUtil.getValidInput(scn, 0, ship.getNumPassengers() - 1)];
     }
 
     private static ArrayList<Excursion> getAvailableExcursions(Ship ship) { // returns excuesions with an available slot
